@@ -1,7 +1,7 @@
 from app.scraper import RecursiveScraper
 
 if __name__ == "__main__":
-    url = "https://docs.python.org/3/"
+    url = "https://moviesmod.town/download-the-night-agent-hindi-480p-720p-1080p/"
     scraper = RecursiveScraper(url, max_depth=1, max_pages=5)
     results = scraper.scrape()
 
