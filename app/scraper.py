@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
+import json
 import time
 
 
@@ -47,10 +48,6 @@ class RecursiveScraper:
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Remove unwanted tags
-        for tag in soup(["script", "style", "nav", "footer", "header"]):
-            tag.decompose()
-
         text_content = self._extract_text(soup)
 
         if text_content.strip():
@@ -70,6 +67,13 @@ class RecursiveScraper:
     def _extract_text(self, soup):
         texts = []
 
+        # Pull text-like data from embedded JSON (common in SPA/Next.js sites)
+        texts.extend(self._extract_json_text(soup))
+
+        # Remove unwanted tags for HTML text extraction
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+
         # Headings
         for tag in soup.find_all(["h1", "h2", "h3"]):
             texts.append(f"\n{tag.get_text(strip=True)}\n")
@@ -86,3 +90,41 @@ class RecursiveScraper:
                     texts.append(" | ".join(cells))
 
         return "\n".join(texts)
+
+    def _extract_json_text(self, soup):
+        texts = []
+
+        for script in soup.find_all("script"):
+            script_type = (script.get("type") or "").lower()
+            script_id = (script.get("id") or "").lower()
+
+            if script_id == "__next_data__" or script_type in {
+                "application/ld+json",
+                "application/json",
+            }:
+                raw = script.string or script.get_text(strip=True)
+                if not raw:
+                    continue
+                try:
+                    data = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                texts.extend(self._flatten_json_strings(data))
+
+        return texts
+
+    def _flatten_json_strings(self, data):
+        texts = []
+
+        if isinstance(data, dict):
+            for value in data.values():
+                texts.extend(self._flatten_json_strings(value))
+        elif isinstance(data, list):
+            for item in data:
+                texts.extend(self._flatten_json_strings(item))
+        elif isinstance(data, str):
+            cleaned = data.strip()
+            if cleaned:
+                texts.append(cleaned)
+
+        return texts

@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # Step 1: Scrape
     scraper = RecursiveScraper(
-        "https://moviesmod.town/download-the-night-agent-hindi-480p-720p-1080p/",
+        "https://code.visualstudio.com/",
         max_depth=0,
         max_pages=1
     )

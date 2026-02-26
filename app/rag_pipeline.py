@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+from google.genai import errors
 
 
 class RAGPipeline:
@@ -40,14 +41,21 @@ class RAGPipeline:
             {query}
         """
 
-        # 3️⃣ Call Gemini
-        response = self.client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-            config={
-                "temperature": 0.2,
-                "max_output_tokens": 250
-            }
-        )
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config={
+                    "temperature": 0.2,
+                    "max_output_tokens": 250
+                }
+            )
+            return response.text, retrieved_chunks
 
-        return response.text, retrieved_chunks
+        except errors.ClientError as e:
+            if e.status_code == 429:
+                return "⚠️ Rate limit reached. Please wait a moment and try again.", retrieved_chunks
+            else:
+                return f"API Error: {e}", retrieved_chunks
+
+        

@@ -9,7 +9,7 @@ import os
 if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
 
-    url = "https://moviesmod.town/download-the-night-agent-hindi-480p-720p-1080p/"
+    url = "https://www.samsung.com/in/smartphones/galaxy-s26-ultra/"
     # Scrape
     scraper = RecursiveScraper(url, max_depth=0, max_pages=1)
     docs = scraper.scrape()
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # RAG
     rag = RAGPipeline(embedder, store)
 
-    question = "What is MoviesMod?,why do we use it?"
+    question = "Can I transfer my data from iOS?"
     answer, sources = rag.answer_query(question)
 
     print("\nANSWER:\n")

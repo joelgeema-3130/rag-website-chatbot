@@ -2,7 +2,7 @@ from app.scraper import RecursiveScraper
 from app.chunker import TextChunker
 
 if __name__ == "__main__":
-    url = "https://moviesmod.town/download-the-night-agent-hindi-480p-720p-1080p/"    
+    url = "https://code.visualstudio.com/"    
     scraper = RecursiveScraper(url, max_depth=0, max_pages=1)
     docs = scraper.scrape()
 
