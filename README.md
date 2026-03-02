@@ -10,10 +10,18 @@ The system combines:
 - Intelligent text chunking
 - Local semantic embeddings
 - FAISS vector search
-- Gemini LLM (for grounded answer generation)
+- Generates grounded responses using OpenAI GPT (via Groq API) 
 - Streamlit frontend interface
 
 The goal is to build a **cost-efficient, production-style AI system** that minimizes hallucination and ensures answers are grounded in real website content.
+
+---
+
+## ❓ Problem Statement
+
+Create a chatbot that can ingest any given URL and recursively scrape relevant content from linked pages, 
+then use Retrieval-Augmented Generation (RAG) to answer user questions accurately based on the collected content. 
+Ensure minimal latency and robust handling of structured and unstructured data.
 
 ---
 
@@ -22,21 +30,21 @@ The goal is to build a **cost-efficient, production-style AI system** that minim
 The system follows a structured RAG pipeline:
 
 Website URL
-↓
+---->
 Recursive Scraper (domain-restricted)
-↓
+---->
 HTML Cleaning & Structured Extraction
-↓
+---->
 Sentence-aware Chunking (with overlap)
-↓
+---->
 Local Embeddings (Sentence Transformers)
-↓
+---->
 FAISS Vector Database
-↓
+---->
 Top-K Semantic Retrieval
-↓
-Gemini LLM (Grounded Prompt)
-↓
+---->
+OpenAI GPT (via Groq API) to generate Responses
+---->
 Answer + Source Attribution
 
 
@@ -63,22 +71,23 @@ This ensures:
 - Structured extraction (headings, paragraphs, tables)
 - Sentence-aware chunking with overlap
 - Semantic search using FAISS
-- Gemini-powered grounded responses
+- OpenAI GPT powered grounded responses
 - Source citation display
 - Response latency measurement
 - Clean Streamlit UI
 
 ---
 
-## 🛠️ Tech Stack
+## 🧩 Tech Stack
 
-- Python 3.10+
-- Sentence Transformers
-- FAISS (CPU)
-- Google Gemini API (`google-genai`)
-- Streamlit
-- BeautifulSoup
-- Requests
+| Component             |               Technology |
+|-----------------------|--------------------------|
+| Frontend + Backend    |                Streamlit |
+| LLM                   |      OpenAI via Groq API |
+| Vector Store          |                    FAISS |
+| Embeddings            |     LLM-based embeddings |
+| Web Scraping          | Requests + BeautifulSoup |
+| Language              |                   Python |
 
 ---
 
