@@ -1,25 +1,23 @@
 import os
 from dotenv import load_dotenv
-from google import genai
-from google.genai import errors
+from groq import Groq
 
 
 class RAGPipeline:
     def __init__(self, embedder, vector_store):
         load_dotenv()
-        api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY")
 
-        # Initialize Gemini client
-        self.client = genai.Client(api_key=api_key)
+        self.client = Groq(api_key=api_key)
 
         self.embedder = embedder
         self.vector_store = vector_store
 
     def answer_query(self, query, top_k=3):
-        # 1️⃣ Embed query
+        # Embed query
         query_embedding = self.embedder.encode([query])
 
-        # 2️⃣ Retrieve relevant chunks
+        # Retrieve relevant chunks
         retrieved_chunks = self.vector_store.search(query_embedding, top_k=top_k)
 
         context = "\n\n".join(
@@ -27,35 +25,33 @@ class RAGPipeline:
         )
 
         prompt = f"""
-            You are a precise and factual AI assistant.
+You are a precise and factual AI assistant.
 
-            Answer ONLY using the provided context.
-            Do NOT use outside knowledge.
-            If the answer is not found, say:
-            "Answer not found in the provided website."
+Answer ONLY using the provided context.
+Do NOT use outside knowledge.
+If the answer is not found, say:
+"Answer not found in the provided website."
 
-            Context:
-            {context}
+Context:
+{context}
 
-            Question:
-            {query}
-        """
+Question:
+{query}
+"""
 
         try:
-            response = self.client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt,
-                config={
-                    "temperature": 0.2,
-                    "max_output_tokens": 250
-                }
+            response = self.client.chat.completions.create(
+                model="openai/gpt-oss-120b",  # free + fast model
+                messages=[
+                    {"role": "system", "content": "You are a factual assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2,
+                max_tokens=250
             )
-            return response.text, retrieved_chunks
 
-        except errors.ClientError as e:
-            if e.status_code == 429:
-                return "⚠️ Rate limit reached. Please wait a moment and try again.", retrieved_chunks
-            else:
-                return f"API Error: {e}", retrieved_chunks
+            answer = response.choices[0].message.content
+            return answer, retrieved_chunks
 
-        
+        except Exception as e:
+            return f"⚠️ API Error: {str(e)}", retrieved_chunks
