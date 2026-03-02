@@ -29,7 +29,7 @@ Ensure minimal latency and robust handling of structured and unstructured data.
 
 The system follows a structured RAG pipeline:
 
-Website URL
+Website URL\\
 ---->
 Recursive Scraper (domain-restricted)
 ---->
