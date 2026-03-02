@@ -21,7 +21,7 @@ The goal is to build a **cost-efficient, production-style AI system** that minim
 
 The system follows a structured RAG pipeline:
 
-Website URL
+Website URL\\
 ↓
 Recursive Scraper (domain-restricted)
 ↓
